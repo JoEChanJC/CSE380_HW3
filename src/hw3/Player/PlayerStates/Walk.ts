@@ -24,6 +24,7 @@ export default class Walk extends PlayerState {
 
         // If the player is not moving - transition to the Idle state
 		if(dir.isZero()){
+            this.parent.velocity.y = 0;
 			this.finished(PlayerStates.IDLE);
 		} 
 

@@ -4,18 +4,16 @@ import Input from "../../../Wolfie2D/Input/Input";
 import { HW3Controls } from "../../HW3Controls";
 
 export default class Idle extends PlayerState {
-    private isDmged: Boolean;
 	public onEnter(options: Record<string, any>): void {
         
 		this.parent.speed = this.parent.MIN_SPEED;
         if(this.parent.velocity.y>200){
+            console.log(this.parent.velocity.y);
             this.owner.animation.play(PlayerAnimations.TAKING_DAMAGE_RIGHT);
-            this.isDmged = true;
-
+            this.owner.animation.queue(PlayerAnimations.IDLE, true, PlayerAnimations.IDLE)
         }
         else if(this.parent.velocity.y<=200){
             this.owner.animation.play(PlayerAnimations.IDLE);
-            this.isDmged = false;
 
         }
         this.parent.velocity.x = 0;
@@ -31,10 +29,6 @@ export default class Idle extends PlayerState {
 		if (!dir.isZero() && dir.y === 0){
 			this.finished(PlayerStates.WALK);
 		} 
-        else if(this.isDmged){
-            this.owner.animation.queue(PlayerAnimations.IDLE, true, PlayerAnimations.IDLE)
-            this.isDmged = false;
-        }
         // If the player is jumping, transition to the jumping state
         else if (Input.isJustPressed(HW3Controls.JUMP)) {
             this.finished(PlayerStates.JUMP);
