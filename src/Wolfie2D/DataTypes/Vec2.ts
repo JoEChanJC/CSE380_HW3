@@ -341,7 +341,7 @@ export default class Vec2 {
 		if(angle < 0){
 			angle += 2*Math.PI;
 		}
-
+		
 		return angle;
 	}
 

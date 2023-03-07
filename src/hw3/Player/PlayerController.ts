@@ -119,7 +119,7 @@ export default class PlayerController extends StateMachineAI {
         if (this.health === 0 && !this.dying) { 
             this.dying = true;
             this.changeState(PlayerStates.DEAD); 
-
+            
             // this.emitter.fireEvent(HW3Events.PLAYER_DEAD);
 
         }
@@ -129,6 +129,8 @@ export default class PlayerController extends StateMachineAI {
         // If the player hits the attack button and the weapon system isn't running, restart the system and fire!
         else if (Input.isPressed(HW3Controls.ATTACK) && !this.weapon.isSystemRunning()) {
             // Start the particle system at the player's current position
+            // this.owner.position.vecTo(this.faceDir)
+            console.log(this.faceDir);
             this.weapon.startSystem(500, 0, this.owner.position);
             this.owner.animation.play(PlayerAnimations.ATTACKING_RIGHT);
         }
