@@ -7,7 +7,12 @@ export default class Walk extends PlayerState {
 
 	onEnter(options: Record<string, any>): void {
 		this.parent.speed = this.parent.MIN_SPEED;
-        this.owner.animation.playIfNotAlready(PlayerAnimations.WALK);
+        if(this.parent.inputDir.x === -1){
+            this.owner.animation.playIfNotAlready(PlayerAnimations.RUNNING_RIGHT);
+        }
+        if(this.parent.inputDir.x === 1){
+            this.owner.animation.playIfNotAlready(PlayerAnimations.RUNNING_RIGHT);
+        }  
 	}
 
 	update(deltaT: number): void {
@@ -21,6 +26,7 @@ export default class Walk extends PlayerState {
 		if(dir.isZero()){
 			this.finished(PlayerStates.IDLE);
 		} 
+
         // If the player hits the jump key - transition to the Jump state
         else if (Input.isJustPressed(HW3Controls.JUMP)) {
             this.finished(PlayerStates.JUMP);

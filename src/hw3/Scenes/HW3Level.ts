@@ -403,7 +403,7 @@ export default abstract class HW3Level extends Scene {
 
         // Add the player to the scene
         this.player = this.add.animatedSprite(key, HW3Layers.PRIMARY);
-        this.player.scale.set(1, 1);
+        this.player.scale.set(0.125, 0.125);
         this.player.position.copy(this.playerSpawn);
         
         // Give the player physics
@@ -412,25 +412,25 @@ export default abstract class HW3Level extends Scene {
         // TODO - give the player their flip tween
 
         // Give the player a death animation
-        this.player.tweens.add(PlayerTweens.DEATH, {
-            startDelay: 0,
-            duration: 500,
-            effects: [
-                {
-                    property: "rotation",
-                    start: 0,
-                    end: Math.PI,
-                    ease: EaseFunctionType.IN_OUT_QUAD
-                },
-                {
-                    property: "alpha",
-                    start: 1,
-                    end: 0,
-                    ease: EaseFunctionType.IN_OUT_QUAD
-                }
-            ],
-            onEnd: HW3Events.PLAYER_DEAD
-        });
+        // this.player.tweens.add(PlayerTweens.DEATH, {
+        //     startDelay: 0,
+        //     duration: 500,
+        //     effects: [
+        //         {
+        //             property: "rotation",
+        //             start: 0,
+        //             end: Math.PI,
+        //             ease: EaseFunctionType.IN_OUT_QUAD
+        //         },
+        //         {
+        //             property: "alpha",
+        //             start: 1,
+        //             end: 0,
+        //             ease: EaseFunctionType.IN_OUT_QUAD
+        //         }
+        //     ],
+        //     onEnd: HW3Events.PLAYER_DEAD
+        // });
 
         // Give the player it's AI
         this.player.addAI(PlayerController, { 
