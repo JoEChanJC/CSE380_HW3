@@ -2,6 +2,8 @@ import GameEvent from "../../../Wolfie2D/Events/GameEvent";
 import { PlayerTweens, PlayerAnimations } from "../PlayerController";
 import PlayerState from "./PlayerState";
 import { HW3Events } from "../../HW3Events";
+import { GameEventType } from "../../../Wolfie2D/Events/GameEventType";
+
 /**
  * The Dead state for the player's FSM AI. 
  */
@@ -11,7 +13,9 @@ export default class Dead extends PlayerState {
     public onEnter(options: Record<string, any>): void {
         this.owner.animation.playIfNotAlready(PlayerAnimations.DYING);
         this.isDying = true;
-        console.log("dying")
+        let deathAudio = this.owner.getScene().getDeathAudioKey();
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: deathAudio, loop: false, holdReference: true});
+        
         // this.owner.tweens.play(PlayerTweens.DEATH);
         // this.owner.animation.queue(PlayerAnimations.DEAD);
     }

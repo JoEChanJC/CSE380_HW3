@@ -89,6 +89,7 @@ export default abstract class HW3Level extends Scene {
     /** Sound and music */
     protected levelMusicKey: string;
     protected jumpAudioKey: string;
+    protected deathAudioKey: string;
     protected tileDestroyedAudioKey: string;
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
@@ -251,6 +252,7 @@ export default abstract class HW3Level extends Scene {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
             this.levelEndTimer.start();
             this.levelEndLabel.tweens.play("slideIn");
+            this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
         }
     }
     /**
@@ -494,5 +496,8 @@ export default abstract class HW3Level extends Scene {
     // Get the key of the player's jump audio file
     public getJumpAudioKey(): string {
         return this.jumpAudioKey
+    }
+    public getDeathAudioKey(): string {
+        return this.deathAudioKey
     }
 }

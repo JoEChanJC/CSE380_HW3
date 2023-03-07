@@ -119,9 +119,6 @@ export default class PlayerController extends StateMachineAI {
         if (this.health === 0 && !this.dying) { 
             this.dying = true;
             this.changeState(PlayerStates.DEAD); 
-
-            // this.emitter.fireEvent(HW3Events.PLAYER_DEAD);
-
         }
         // else if(this.dying){
         //     this.owner.animation.play(PlayerAnimations.DEAD);
