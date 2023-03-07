@@ -25,7 +25,6 @@ import { HW3PhysicsGroups } from "../HW3PhysicsGroups";
 import HW3FactoryManager from "../Factory/HW3FactoryManager";
 import MainMenu from "./MainMenu";
 import Particle from "../../Wolfie2D/Nodes/Graphics/Particle";
-
 /**
  * A const object for the layer names
  */
@@ -58,8 +57,8 @@ export default abstract class HW3Level extends Scene {
     protected playerSpawn: Vec2;
 
     private healthLabel: Label;
-	private healthBar: Label;
-	private healthBarBg: Label;
+    private healthBar: Label;
+    private healthBarBg: Label;
 
 
     /** The end of level stuff */
@@ -93,9 +92,23 @@ export default abstract class HW3Level extends Scene {
     protected tileDestroyedAudioKey: string;
 
     public constructor(viewport: Viewport, sceneManager: SceneManager, renderingManager: RenderingManager, options: Record<string, any>) {
-        super(viewport, sceneManager, renderingManager, {...options, physics: {
-            // TODO configure the collision groups and collision map
-         }});
+        super(viewport, sceneManager, renderingManager, {
+            ...options, physics: {
+                // TODO configure the collision groups and collision map
+                groupNames: [
+                    HW3PhysicsGroups.GROUND,
+                    HW3PhysicsGroups.PLAYER,
+                    HW3PhysicsGroups.PLAYER_WEAPON,
+                    HW3PhysicsGroups.DESTRUCTABLE
+                ],
+                collisions: [
+                    [0, 1, 1, 0],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [0, 1, 1, 0]
+                ]
+            }
+        });
         this.add = new HW3FactoryManager(this, this.tilemaps);
     }
 
@@ -117,7 +130,7 @@ export default abstract class HW3Level extends Scene {
         // Initialize the viewport - this must come after the player has been initialized
         this.initializeViewport();
         this.subscribeToEvents();
-        
+
 
         // Initialize the ends of the levels - must be initialized after the primary layer has been added
         this.initializeLevelEnds();
@@ -135,7 +148,7 @@ export default abstract class HW3Level extends Scene {
         this.levelTransitionScreen.tweens.play("fadeOut");
 
         // Start playing the level music for the HW4 level
-        this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: this.levelMusicKey, loop: true, holdReference: true});
+        this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.levelMusicKey, loop: true, holdReference: true });
     }
 
     /* Update method for the scene */
@@ -204,10 +217,10 @@ export default abstract class HW3Level extends Scene {
             let maxIndex = tilemap.getColRowAt(max);
 
             // Loop over all possible tiles the particle could be colliding with 
-            for(let col = minIndex.x; col <= maxIndex.x; col++){
-                for(let row = minIndex.y; row <= maxIndex.y; row++){
+            for (let col = minIndex.x; col <= maxIndex.x; col++) {
+                for (let row = minIndex.y; row <= maxIndex.y; row++) {
                     // If the tile is collideable -> check if this particle is colliding with the tile
-                    if(tilemap.isTileCollidable(col, row) && this.particleHitTile(tilemap, particle, col, row)){
+                    if (tilemap.isTileCollidable(col, row) && this.particleHitTile(tilemap, particle, col, row)) {
                         this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.tileDestroyedAudioKey, loop: false, holdReference: false });
                         // TODO Destroy the tile
                     }
@@ -248,13 +261,13 @@ export default abstract class HW3Level extends Scene {
      * @param maxHealth the maximum health of the player
      */
     protected handleHealthChange(currentHealth: number, maxHealth: number): void {
-		let unit = this.healthBarBg.size.x / maxHealth;
-        
-		this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
-		this.healthBar.position.set(this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth), this.healthBarBg.position.y);
+        let unit = this.healthBarBg.size.x / maxHealth;
 
-		this.healthBar.backgroundColor = currentHealth < maxHealth * 1/4 ? Color.RED: currentHealth < maxHealth * 3/4 ? Color.YELLOW : Color.GREEN;
-	}
+        this.healthBar.size.set(this.healthBarBg.size.x - unit * (maxHealth - currentHealth), this.healthBarBg.size.y);
+        this.healthBar.position.set(this.healthBarBg.position.x - (unit / 2 / this.getViewScale()) * (maxHealth - currentHealth), this.healthBarBg.position.y);
+
+        this.healthBar.backgroundColor = currentHealth < maxHealth * 1 / 4 ? Color.RED : currentHealth < maxHealth * 3 / 4 ? Color.YELLOW : Color.GREEN;
+    }
 
     /* Initialization methods for everything in the scene */
 
@@ -308,20 +321,20 @@ export default abstract class HW3Level extends Scene {
     protected initializeUI(): void {
 
         // HP Label
-		this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, {position: new Vec2(205, 20), text: "HP "});
-		this.healthLabel.size.set(300, 30);
-		this.healthLabel.fontSize = 24;
-		this.healthLabel.font = "Courier";
+        this.healthLabel = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, { position: new Vec2(205, 20), text: "HP " });
+        this.healthLabel.size.set(300, 30);
+        this.healthLabel.fontSize = 24;
+        this.healthLabel.font = "Courier";
 
         // HealthBar
-		this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, {position: new Vec2(250, 20), text: ""});
-		this.healthBar.size = new Vec2(300, 25);
-		this.healthBar.backgroundColor = Color.GREEN;
+        this.healthBar = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, { position: new Vec2(250, 20), text: "" });
+        this.healthBar.size = new Vec2(300, 25);
+        this.healthBar.backgroundColor = Color.GREEN;
 
         // HealthBar Border
-		this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, {position: new Vec2(250, 20), text: ""});
-		this.healthBarBg.size = new Vec2(300, 25);
-		this.healthBarBg.borderColor = Color.BLACK;
+        this.healthBarBg = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, { position: new Vec2(250, 20), text: "" });
+        this.healthBarBg.size = new Vec2(300, 25);
+        this.healthBarBg.borderColor = Color.BLACK;
 
         // End of level label (start off screen)
         this.levelEndLabel = <Label>this.add.uiElement(UIElementType.LABEL, HW3Layers.UI, { position: new Vec2(-300, 100), text: "Level Complete" });
@@ -387,7 +400,7 @@ export default abstract class HW3Level extends Scene {
      */
     protected initializeWeaponSystem(): void {
         this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
-        this.playerWeaponSystem.initializePool(this, HW3Layers.PRIMARY);
+        this.playerWeaponSystem.initializePool(this, HW3Layers.PRIMARY); 
     }
     /**
      * Initializes the player, setting the player's initial position to the given position.
@@ -405,12 +418,23 @@ export default abstract class HW3Level extends Scene {
         this.player = this.add.animatedSprite(key, HW3Layers.PRIMARY);
         this.player.scale.set(0.125, 0.125);
         this.player.position.copy(this.playerSpawn);
-        
         // Give the player physics
         this.player.addPhysics(new AABB(this.player.position.clone(), this.player.boundary.getHalfSize().clone()));
+        this.player.setGroup(HW3PhysicsGroups.PLAYER);
 
         // TODO - give the player their flip tween
-
+        this.player.tweens.add(PlayerTweens.FLIP, {
+            startDelay: 0,
+            duration: 500,
+            effects: [
+                {
+                    property: "rotation",
+                    start: 0,
+                    end: (Math.PI * 2),
+                    ease: EaseFunctionType.IN_OUT_QUAD
+                }
+            ]
+        });
         // Give the player a death animation
         // this.player.tweens.add(PlayerTweens.DEATH, {
         //     startDelay: 0,
@@ -433,9 +457,9 @@ export default abstract class HW3Level extends Scene {
         // });
 
         // Give the player it's AI
-        this.player.addAI(PlayerController, { 
-            weaponSystem: this.playerWeaponSystem, 
-            tilemap: "Destructable" 
+        this.player.addAI(PlayerController, {
+            weaponSystem: this.playerWeaponSystem,
+            tilemap: "Destructable"
         });
     }
     /**
@@ -456,12 +480,13 @@ export default abstract class HW3Level extends Scene {
         if (!this.layers.has(HW3Layers.PRIMARY)) {
             throw new Error("Can't initialize the level ends until the primary layer has been added to the scene!");
         }
-        
+
         this.levelEndArea = <Rect>this.add.graphic(GraphicType.RECT, HW3Layers.PRIMARY, { position: this.levelEndPosition, size: this.levelEndHalfSize });
         this.levelEndArea.addPhysics(undefined, undefined, false, true);
+        this.levelEndArea.setGroup(HW3PhysicsGroups.PLAYER);
         this.levelEndArea.setTrigger(HW3PhysicsGroups.PLAYER, HW3Events.PLAYER_ENTERED_LEVEL_END, null);
         this.levelEndArea.color = new Color(255, 0, 255, .20);
-        
+
     }
 
     /* Misc methods */

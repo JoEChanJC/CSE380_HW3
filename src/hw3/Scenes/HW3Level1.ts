@@ -76,7 +76,7 @@ export default class Level1 extends HW3Level {
     public unloadScene(): void {
         // TODO decide which resources to keep/cull 
     }
-
+    
     public startScene(): void {
         super.startScene();
         // Set the next level to be Level2
