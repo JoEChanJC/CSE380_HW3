@@ -12,6 +12,7 @@ export default class Jump extends PlayerState {
         // Give the player a burst of upward momentum
         this.parent.velocity.y = -200;
         // Play the jump sound for the player
+        //PART 4-TWEENING
 		this.emitter.fireEvent(GameEventType.PLAY_SOUND, {key: jumpAudio, loop: false, holdReference: true});
         if(this.parent.velocity.x !== 0)
             this.owner.tweens.play(PlayerTweens.FLIP);

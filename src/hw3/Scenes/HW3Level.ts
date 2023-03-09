@@ -425,6 +425,7 @@ export default abstract class HW3Level extends Scene {
         this.player.setGroup(HW3PhysicsGroups.PLAYER);
 
         // TODO - give the player their flip tween
+        //PART 4-TWEENING
         this.player.tweens.add(PlayerTweens.FLIP, {
             startDelay: 0,
             duration: 500,
