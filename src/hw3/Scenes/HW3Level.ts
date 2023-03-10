@@ -178,6 +178,7 @@ export default abstract class HW3Level extends Scene {
             }
             // When the level ends, change the scene to the next level
             case HW3Events.LEVEL_END: {
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(this.nextLevel);
                 break;
             }
@@ -186,7 +187,12 @@ export default abstract class HW3Level extends Scene {
                 break;
             }
             case HW3Events.PLAYER_DEAD: {
+                this.emitter.fireEvent(GameEventType.STOP_SOUND, { key: this.levelMusicKey });
                 this.sceneManager.changeToScene(MainMenu);
+                break;
+            }
+            case HW3Events.PARTICLE_HIT: {
+                this.handleParticleHit(event.data.get("node"));
                 break;
             }
             // Default: Throw an error! No unhandled events allowed.
@@ -224,6 +230,7 @@ export default abstract class HW3Level extends Scene {
                     if (tilemap.isTileCollidable(col, row) && this.particleHitTile(tilemap, particle, col, row)) {
                         this.emitter.fireEvent(GameEventType.PLAY_SOUND, { key: this.tileDestroyedAudioKey, loop: false, holdReference: false });
                         // TODO Destroy the tile
+                        tilemap.setTileAtRowCol(new Vec2(col,row),0)
                     }
                 }
             }
@@ -241,7 +248,12 @@ export default abstract class HW3Level extends Scene {
      */
     protected particleHitTile(tilemap: OrthogonalTilemap, particle: Particle, col: number, row: number): boolean {
         // TODO detect whether a particle hit a tile
-        return;
+        if (tilemap.getTileWorldPosition(tilemap.getTileAtRowCol(new Vec2(row, col))) !== undefined && particle.collidedWithTilemap) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     /**
@@ -252,7 +264,6 @@ export default abstract class HW3Level extends Scene {
         if (!this.levelEndTimer.hasRun() && this.levelEndTimer.isStopped()) {
             this.levelEndTimer.start();
             this.levelEndLabel.tweens.play("slideIn");
-            this.emitter.fireEvent(GameEventType.STOP_SOUND, {key: this.levelMusicKey});
         }
     }
     /**
@@ -300,12 +311,15 @@ export default abstract class HW3Level extends Scene {
 
         // Get the wall and destructible layers 
         this.walls = this.getTilemap(this.wallsLayerKey) as OrthogonalTilemap;
+        this.walls.setGroup(HW3PhysicsGroups.GROUND);
         this.destructable = this.getTilemap(this.destructibleLayerKey) as OrthogonalTilemap;
-
         // Add physicss to the wall layer
         this.walls.addPhysics();
+        this.walls.setGroup(HW3PhysicsGroups.GROUND);
         // Add physics to the destructible layer of the tilemap
         this.destructable.addPhysics();
+        this.destructable.setGroup(HW3PhysicsGroups.DESTRUCTABLE);
+        this.destructable.setTrigger(HW3PhysicsGroups.PLAYER_WEAPON, HW3Events.PARTICLE_HIT, null);
     }
     /**
      * Handles all subscriptions to events
@@ -316,6 +330,8 @@ export default abstract class HW3Level extends Scene {
         this.receiver.subscribe(HW3Events.LEVEL_END);
         this.receiver.subscribe(HW3Events.HEALTH_CHANGE);
         this.receiver.subscribe(HW3Events.PLAYER_DEAD);
+        this.receiver.subscribe(HW3Events.PARTICLE_HIT);
+
     }
     /**
      * Adds in any necessary UI to the game
@@ -402,14 +418,17 @@ export default abstract class HW3Level extends Scene {
      */
     protected initializeWeaponSystem(): void {
         this.playerWeaponSystem = new PlayerWeapon(50, Vec2.ZERO, 1000, 3, 0, 50);
-        this.playerWeaponSystem.initializePool(this, HW3Layers.PRIMARY); 
+        this.playerWeaponSystem.initializePool(this, HW3Layers.PRIMARY);
+        for (let particle of this.playerWeaponSystem.getPool()) {
+            particle.setGroup(HW3PhysicsGroups.PLAYER_WEAPON);
+        }
     }
     /**
      * Initializes the player, setting the player's initial position to the given position.
      * @param position the player's spawn position
      */
     protected initializePlayer(key: string): void {
-        if (this.playerWeaponSystem === undefined) {
+        if (this.playerWeaponSystem === undefined && this.playerWeaponSystem.isSystemRunning()) {
             throw new Error("Player weapon system must be initialized before initializing the player!");
         }
         if (this.playerSpawn === undefined) {
@@ -485,10 +504,11 @@ export default abstract class HW3Level extends Scene {
         }
 
         this.levelEndArea = <Rect>this.add.graphic(GraphicType.RECT, HW3Layers.PRIMARY, { position: this.levelEndPosition, size: this.levelEndHalfSize });
+        this.levelEndArea.color = new Color(255, 0, 255, .20);
         this.levelEndArea.addPhysics(undefined, undefined, false, true);
         this.levelEndArea.setGroup(HW3PhysicsGroups.PLAYER);
         this.levelEndArea.setTrigger(HW3PhysicsGroups.PLAYER, HW3Events.PLAYER_ENTERED_LEVEL_END, null);
-        this.levelEndArea.color = new Color(255, 0, 255, .20);
+        
 
     }
 

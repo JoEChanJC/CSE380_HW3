@@ -18,6 +18,7 @@ export const HW3Events = {
     HEALTH_CHANGE: "HEALTH_CHANGE",
 
     // The event sent when the player dies. Gets sent after the player's death animation
-    PLAYER_DEAD: "DEAD"
+    PLAYER_DEAD: "DEAD",
+    PARTICLE_HIT: "PARTICLE_HIT"
     
 } as const;
