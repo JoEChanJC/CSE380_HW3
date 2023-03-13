@@ -80,8 +80,11 @@ export default class Level1 extends HW3Level {
      */
     public unloadScene(): void {
         // TODO decide which resources to keep/cull 
-        
-
+        this.resourceManager.keepSpritesheet(this.playerSpriteKey);
+        this.resourceManager.keepAudio(this.jumpAudioKey);
+        this.resourceManager.keepAudio(this.deathAudioKey);
+        this.resourceManager.keepAudio(this.tileDestroyedAudioKey);
+        this.resourceManager.unloadAllResources();
     }
     
     public startScene(): void {
